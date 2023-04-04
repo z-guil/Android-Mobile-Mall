@@ -10,7 +10,7 @@ import com.example.shopping.dao.GoodDao;
 import com.example.shopping.entity.Cart;
 import com.example.shopping.entity.Good;
 
-@Database(entities = {Good.class, Cart.class},version = 1,exportSchema = true)
+@Database(entities = {Good.class, Cart.class},version = 1,exportSchema = false)
 public abstract class GoodDatabase extends RoomDatabase {
     public abstract GoodDao goodDao();
 

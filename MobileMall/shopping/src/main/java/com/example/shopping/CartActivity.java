@@ -9,8 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.shopping.adapter.CartAdapter;
 import com.example.shopping.dao.GoodDao;
 import com.example.shopping.database.GoodDatabase;
 import com.example.shopping.entity.Cart;
@@ -21,17 +23,17 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
 
     private GoodDao goodDao;
     private List<Cart> cartList;
-    private LinearLayout ll_cart;
+    private ListView lv_cart;
     private TextView tv_count;
     private TextView tv_total_price;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cart);
+        setContentView(R.layout.activity_cart_listview);
         goodDao = GoodDatabase.getInstance(this.getApplication()).goodDao();
         cartList = goodDao.queryAllFromCart();
-        ll_cart = (LinearLayout)findViewById(R.id.ll_cart);
+        lv_cart = (ListView)findViewById(R.id.lv_cart);
         findViewById(R.id.btn_clear).setOnClickListener(this);
         findViewById(R.id.btn_settle).setOnClickListener(this);
         findViewById(R.id.iv_back).setOnClickListener(this);
@@ -45,28 +47,34 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
         tv_total_price = findViewById(R.id.tv_total_price);
 
 
-        int count = 0;
-        int sum = 0;
-        ll_cart.removeAllViews();
-        for (Cart cart:cartList) {
 
-            //获取布局文件item_cart.xml的根视图
-            View v = LayoutInflater.from(this).inflate(R.layout.item_cart, null);
-            ImageView pic = (ImageView) v.findViewById(R.id.iv_thumb);
-            TextView tv_name = (TextView) v.findViewById(R.id.tv_name);
-            TextView tv_desc = (TextView) v.findViewById(R.id.tv_desc);
-            TextView tv_price = (TextView) v.findViewById(R.id.tv_price);
-            //设置参数
-            pic.setImageResource(cart.picPath);
-            tv_name.setText(cart.name);
-            tv_desc.setText(cart.description);
-            tv_price.setText(String.valueOf(cart.price));
-            //
-            count++;
-            sum+=cart.price;
-            //插入子布局
-            ll_cart.addView(v);
+//        lv_cart.removeAllViews();
+        CartAdapter adapter = new CartAdapter(this,cartList);
+        lv_cart.setAdapter(adapter);
+        int count = adapter.getCount();
+        Double sum = new Double(0);
+        for (int i = 0; i < cartList.size(); i++) {
+            sum+=cartList.get(i).price;
         }
+//        for (Cart cart:cartList) {
+//
+//            //获取布局文件item_cart.xml的根视图
+//            View v = LayoutInflater.from(this).inflate(R.layout.item_cart, null);
+//            ImageView pic = (ImageView) v.findViewById(R.id.iv_thumb);
+//            TextView tv_name = (TextView) v.findViewById(R.id.tv_name);
+//            TextView tv_desc = (TextView) v.findViewById(R.id.tv_desc);
+//            TextView tv_price = (TextView) v.findViewById(R.id.tv_price);
+//            //设置参数
+//            pic.setImageResource(cart.picPath);
+//            tv_name.setText(cart.name);
+//            tv_desc.setText(cart.description);
+//            tv_price.setText(String.valueOf(cart.price));
+//            //
+//            count++;
+//            sum+=cart.price;
+//            //插入子布局
+//            ll_cart.addView(v);
+//        }
         tv_count.setText(String.valueOf(count));
         tv_total_price.setText(String.valueOf(sum));
         //如果为空，展示空的布局
@@ -97,8 +105,6 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
                 dialog.show();
                 break;
             case R.id.iv_back:
-                finish();
-                break;
             case R.id.btn_shopping_channel:
                 Intent intent = new Intent(this,MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
